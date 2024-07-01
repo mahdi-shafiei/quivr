@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.0.278 (2024-07-01)
+
+## What's Changed
+* chore: Add GitHub Actions workflow for testing and building Docker image by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2778
+* chore: Update flashrank npm dependency to version 0.2.5 by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2781
+* feat(frontend): disabled searchBar if no remaining credits or no brain selected by @Zewed in https://github.com/QuivrHQ/quivr/pull/2788
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.277...v0.0.278
+
+## 0.0.277 (2024-06-27)
+
+## What's Changed
+* fix(frontend): UI Notification Ring and Fix Page Header Display on Mobile by @Zewed in https://github.com/QuivrHQ/quivr/pull/2771
+* feat(frontend): better UI for General Settings by @Zewed in https://github.com/QuivrHQ/quivr/pull/2773
+* fix(frontend): new api key creation bug by @Zewed in https://github.com/QuivrHQ/quivr/pull/2774
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.276...v0.0.277
+
+## 0.0.276 (2024-06-27)
+
+## What's Changed
+* chore: Add supabase directory to Dockerfile by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2768
+* chore: Update docker-compose files to specify platform for backend services by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2763
+* Revert "chore: Update docker-compose files to specify platform for backend services" by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2770
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.275...v0.0.276
+
+## 0.0.275 (2024-06-27)
+
+## What's Changed
+* fix(frontend): fix table in frontend by @Zewed in https://github.com/QuivrHQ/quivr/pull/2758
+* chore: Update docker-compose files to specify platform for backend services by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2762
+* fix(frontend): settings button by @Zewed in https://github.com/QuivrHQ/quivr/pull/2764
+* feat(backend):   quivr-monorepo and quivr-core package by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/2765
+* chore: Add ci-migration.sh to Dockerfile by @StanGirard in https://github.com/QuivrHQ/quivr/pull/2767
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.274...v0.0.275
+
 ## 0.0.274 (2024-06-26)
 
 ## What's Changed

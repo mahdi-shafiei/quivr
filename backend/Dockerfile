@@ -1,5 +1,5 @@
 # Using a slim version for a smaller base image
-FROM python:3.11.6-slim-bullseye@sha256:0c1fbb294096d842ad795ee232d783cab436c90b034210fe894f2bb2f2be7626 AS base
+FROM python:3.11.6-slim-bullseye
 
 ARG DEV_MODE
 ENV DEV_MODE=$DEV_MODE
@@ -57,18 +57,28 @@ ENV PATH="/root/.cargo/bin:${PATH}" \
 
 WORKDIR /code
 
-# Copy pyproject and poetry
+
+# Copy monorepo dependencies
+# CORE
+COPY core/pyproject.toml core/README.md core/poetry.lock  /code/core/
+COPY core/quivr_core /code/core/quivr_core
+# API
+COPY api/pyproject.toml  api/poetry.lock api/README.md /code/api/
+COPY api/quivr_api /code/api/quivr_api
+
 COPY ./pyproject.toml ./poetry.lock* /code/
 
+COPY ./ci-migration.sh /code/
+
+COPY supabase /code/supabase/
+
 # Run install
-RUN poetry install --no-root  && \
+RUN poetry install --no-root --with dev,test && \
     playwright install --with-deps && \
     rm -rf $POETRY_CACHE_DIR
 
 
 ENV PYTHONPATH=/code
 
-# Copy the rest of the application
-COPY . .
 
 EXPOSE 5050
