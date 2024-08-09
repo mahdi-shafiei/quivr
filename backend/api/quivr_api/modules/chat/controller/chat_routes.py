@@ -11,6 +11,7 @@ from quivr_api.modules.brain.service.brain_authorization_service import (
     validate_brain_authorization,
 )
 from quivr_api.modules.brain.service.brain_service import BrainService
+from quivr_api.modules.chat.controller.chat.utils import check_and_update_user_usage
 from quivr_api.modules.chat.dto.chats import ChatItem, ChatQuestion
 from quivr_api.modules.chat.dto.inputs import (
     ChatMessageProperties,
@@ -28,6 +29,7 @@ from quivr_api.modules.prompt.service.prompt_service import PromptService
 from quivr_api.modules.rag_service import RAGService
 from quivr_api.modules.user.entity.user_identity import UserIdentity
 from quivr_api.packages.utils.telemetry import maybe_send_telemetry
+from quivr_api.packages.utils.uuid_generator import generate_uuid_from_string
 
 logger = get_logger(__name__)
 
@@ -168,31 +170,54 @@ async def create_question_handler(
     model_service: ModelServiceDep,
     brain_id: Annotated[UUID | None, Query()] = None,
 ):
-    # TODO: check logic into middleware
-    validate_authorization(user_id=current_user.id, brain_id=brain_id)
+    models = await model_service.get_models()
+
+    model_to_use = None
+    # Check if the brain_id is a model name hashed to a uuid and then returns the model name
+    # if chat_question.brain_id in [generate_uuid_from_string(model.name) for model in models]:
+    #     mode
+    for model in models:
+        if brain_id == generate_uuid_from_string(model.name):
+            model_to_use = model
+            break
+
     try:
-        service = None
-        if brain_id:
+        service = None | RAGService | ChatLLMService
+        if not model_to_use:
+            brain = brain_service.get_brain_details(brain_id, current_user.id)  # type: ignore
+            model = await check_and_update_user_usage(
+                current_user, str(brain.model), model_service
+            )  # type: ignore
+            assert model is not None  # type: ignore
+            assert brain is not None  # type: ignore
+
+            brain.model = model.name
+            validate_authorization(user_id=current_user.id, brain_id=brain_id)
             service = RAGService(
                 current_user,
-                brain_id,
+                brain,
                 chat_id,
                 brain_service,
                 prompt_service,
                 chat_service,
                 knowledge_service,
+                model_service,
             )
         else:
+            await check_and_update_user_usage(
+                current_user, model_to_use.name, model_service
+            )  # type: ignore
             service = ChatLLMService(
                 current_user,
-                chat_question.model,
+                model_to_use.name,
                 chat_id,
                 chat_service,
                 model_service,
-            )
+            )  # type: ignore
+        assert service is not None  # type: ignore
+        maybe_send_telemetry("question_asked", {"streaming": True}, request)
         chat_answer = await service.generate_answer(chat_question.question)
 
-        maybe_send_telemetry("question_asked", {"streaming": False}, request)
         return chat_answer
 
     except AssertionError:
@@ -223,32 +248,55 @@ async def create_stream_question_handler(
     model_service: ModelServiceDep,
     brain_id: Annotated[UUID | None, Query()] = None,
 ) -> StreamingResponse:
-    validate_authorization(user_id=current_user.id, brain_id=brain_id)
-
     logger.info(
         f"Creating question for chat {chat_id} with brain {brain_id} of type {type(brain_id)}"
     )
 
+    models = await model_service.get_models()
+
+    model_to_use = None
+    # Check if the brain_id is a model name hashed to a uuid and then returns the model name
+    # if chat_question.brain_id in [generate_uuid_from_string(model.name) for model in models]:
+    #     mode
+    for model in models:
+        if brain_id == generate_uuid_from_string(model.name):
+            model_to_use = model
+            break
+
     try:
         service = None
-        if brain_id:
+        if not model_to_use:
+            brain = brain_service.get_brain_details(brain_id, current_user.id)  # type: ignore
+            model = await check_and_update_user_usage(
+                current_user, str(brain.model), model_service
+            )  # type: ignore
+            assert model is not None  # type: ignore
+            assert brain is not None  # type: ignore
+
+            brain.model = model.name
+            validate_authorization(user_id=current_user.id, brain_id=brain_id)
             service = RAGService(
                 current_user,
-                brain_id,
+                brain,
                 chat_id,
                 brain_service,
                 prompt_service,
                 chat_service,
                 knowledge_service,
+                model_service,
             )
         else:
+            await check_and_update_user_usage(
+                current_user, model_to_use.name, model_service
+            )  # type: ignore
             service = ChatLLMService(
                 current_user,
-                chat_question.model,
+                model_to_use.name,
                 chat_id,
                 chat_service,
                 model_service,
-            )
+            )  # type: ignore
+        assert service is not None  # type: ignore
         maybe_send_telemetry("question_asked", {"streaming": True}, request)
 
         return StreamingResponse(
