@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Union
 import dropbox
 import markdownify
 import msal
-import redis  # type: ignore
 import requests  # type: ignore
 from fastapi import HTTPException
 from google.auth.transport.requests import Request as GoogleRequest
@@ -25,7 +24,6 @@ from quivr_api.modules.sync.service.sync_notion import SyncNotionService
 from quivr_api.modules.sync.utils.normalize import remove_special_characters
 
 logger = get_logger(__name__)
-redis_client = redis.Redis(host="redis", port=int(os.getenv("REDIS_PORT", 6379)), db=0)
 
 
 class BaseSync(ABC):
@@ -51,7 +49,11 @@ class BaseSync(ABC):
 
     @abstractmethod
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
         pass
 
@@ -301,7 +303,11 @@ class GoogleDriveSync(BaseSync):
             raise Exception("Failed to retrieve files")
 
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
         return self.get_files(credentials, folder_id, recursive)
 
@@ -472,7 +478,11 @@ class AzureDriveSync(BaseSync):
         return files
 
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
         return self.get_files(credentials, folder_id, recursive)
 
@@ -666,7 +676,11 @@ class DropboxSync(BaseSync):
             raise Exception("Failed to retrieve files")
 
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
         return self.get_files(credentials, folder_id, recursive)
 
@@ -782,8 +796,13 @@ class NotionSync(BaseSync):
         return credentials
 
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
+        assert sync_user_id, "should not be optional for notion"
         pages = []
 
         if not self.notion:
@@ -792,7 +811,9 @@ class NotionSync(BaseSync):
         if not folder_id or folder_id == "":
             folder_id = None  # ROOT FOLDER HAVE A TRUE PARENT ID
 
-        children = await self.notion_service.get_notion_files_by_parent_id(folder_id)
+        children = await self.notion_service.get_notion_files_by_parent_id(
+            folder_id, sync_user_id
+        )
         for page in children:
             page_info = SyncFile(
                 name=page.name,
@@ -803,12 +824,16 @@ class NotionSync(BaseSync):
                 web_view_link=page.web_view_link,
                 icon=page.icon,
             )
-            redis_client.set(str(page.id), json.dumps(page_info.model_dump_json()))
 
             pages.append(page_info)
 
             if recursive:
-                sub_pages = await self.aget_files(credentials, str(page.id), recursive)
+                sub_pages = await self.aget_files(
+                    credentials=credentials,
+                    sync_user_id=sync_user_id,
+                    folder_id=str(page.id),
+                    recursive=recursive,
+                )
                 pages.extend(sub_pages)
         return pages
 
@@ -951,6 +976,10 @@ class NotionSync(BaseSync):
 
                 markdown_content = []
                 for block in blocks:
+                    logger.info(f"Block: {block}")
+                    if "image" in block["type"] or "file" in block["type"]:
+                        logger.info(f"Block is an image or file: {block}")
+                        continue
                     markdown_content.append(self.get_block_content(block))
                     if block["has_children"]:
                         sub_elements = [
@@ -1021,7 +1050,11 @@ class GitHubSync(BaseSync):
             return self.list_github_repos(credentials, recursive=recursive)
 
     async def aget_files(
-        self, credentials: Dict, folder_id: str | None = None, recursive: bool = False
+        self,
+        credentials: Dict,
+        folder_id: str | None = None,
+        recursive: bool = False,
+        sync_user_id: int | None = None,
     ) -> List[SyncFile]:
         return self.get_files(credentials, folder_id, recursive)
 

@@ -7,8 +7,7 @@ from langchain.embeddings.base import Embeddings
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 
 # from langchain_community.vectorstores.supabase import SupabaseVectorStore
-from langchain_openai import OpenAIEmbeddings
-from langchain_openai import AzureOpenAIEmbeddings
+from langchain_openai import AzureOpenAIEmbeddings, OpenAIEmbeddings
 
 # from quivr_api.modules.vector.service.vector_service import VectorService
 # from quivr_api.modules.vectorstore.supabase import CustomSupabaseVectorStore
@@ -22,7 +21,6 @@ from quivr_api.models.databases.supabase.supabase import SupabaseDB
 from quivr_api.models.settings import BrainSettings
 from supabase.client import AsyncClient, Client, create_async_client, create_client
 
-
 # Global variables to store the Supabase client and database instances
 _supabase_client: Optional[Client] = None
 _supabase_async_client: Optional[AsyncClient] = None
@@ -32,7 +30,7 @@ _embedding_service = None
 
 settings = BrainSettings()  # type: ignore
 
-logger = get_logger(__name__)
+logger = get_logger("quivr_api")
 
 
 class BaseRepository:

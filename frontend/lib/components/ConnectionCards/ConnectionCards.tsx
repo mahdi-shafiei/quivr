@@ -10,38 +10,39 @@ interface ConnectionCardsProps {
 export const ConnectionCards = ({
   fromAddKnowledge,
 }: ConnectionCardsProps): JSX.Element => {
-  const { syncGoogleDrive, syncSharepoint, syncDropbox } =
-    useSync();
+  const { syncGoogleDrive, syncSharepoint, syncDropbox } = useSync();
 
   return (
     <div
-      className={`${styles.connection_cards} ${fromAddKnowledge ? styles.spaced : ""
-        }`}
+      className={`${styles.connection_cards} ${
+        fromAddKnowledge ? styles.spaced : ""
+      }`}
     >
-      <ConnectionSection
-        label="Google Drive"
-        provider="Google"
-        callback={(name) => syncGoogleDrive(name)}
-        fromAddKnowledge={fromAddKnowledge}
-      />
-      <ConnectionSection
-        label="Sharepoint"
-        provider="Azure"
-        callback={(name) => syncSharepoint(name)}
-        fromAddKnowledge={fromAddKnowledge}
-      />
       <ConnectionSection
         label="Dropbox"
         provider="DropBox"
-        callback={(name) => syncDropbox(name)}
+        callback={(name: string) => syncDropbox(name)}
+        fromAddKnowledge={fromAddKnowledge}
+      />
+      <ConnectionSection
+        label="Google Drive"
+        provider="Google"
+        callback={(name: string) => syncGoogleDrive(name)}
         fromAddKnowledge={fromAddKnowledge}
       />
       {/* <ConnectionSection
-        label="Notion"
+        label="Notion (Beta)"
         provider="Notion"
-        callback={(name) => syncNotion(name)}
+        callback={(name: string) => syncNotion(name)}
         fromAddKnowledge={fromAddKnowledge}
+        oneAccountLimitation={true}
       /> */}
+      <ConnectionSection
+        label="Sharepoint"
+        provider="Azure"
+        callback={(name: string) => syncSharepoint(name)}
+        fromAddKnowledge={fromAddKnowledge}
+      />
     </div>
   );
 };

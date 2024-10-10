@@ -139,9 +139,10 @@ async def process_notion_sync(
                     notion_service,
                     pages_to_update,
                     UUID(user_id),
+                    notion_sync["id"],
                     notion_client,  # type: ignore
                 )
-
+            await session.commit()
     except Exception as e:
         await session.rollback()
         raise e

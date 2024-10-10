@@ -9,7 +9,11 @@ authors = [
     { name = "Jacopo Chevallard", email = "jacopo@quivr.app" },
 ]
 dependencies = [
-    "packaging>=22.0"
+    "packaging>=22.0",
+    # Logging packages
+    "structlog>=24.4.0",
+    "python-json-logger>=2.0.7",
+    "orjson>=3.10.7",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
@@ -40,7 +44,7 @@ dev-dependencies = [
 ]
 
 [tool.rye.workspace]
-members = [".", "core", "worker", "api", "docs", "core/examples/chatbot"]
+members = [".", "core", "worker", "api", "docs", "core/examples/chatbot", "core/MegaParse", "worker/diff-assistant"]
 
 [tool.hatch.metadata]
 allow-direct-references = true

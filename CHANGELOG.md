@@ -1,5 +1,123 @@
 # Changelog
 
+## 0.0.321 (2024-10-08)
+
+## What's Changed
+* feat: Add file name to knowledge properties in crawl_endpoint by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3346
+* feat(frontend): add xlsx by @Zewed in https://github.com/QuivrHQ/quivr/pull/3340
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.320...v0.0.321
+
+## 0.0.320 (2024-10-07)
+
+## What's Changed
+* Enable Porter Application cdp by @porter-deployment-app in https://github.com/QuivrHQ/quivr/pull/3306
+* Enable Porter Application cdp-front by @porter-deployment-app in https://github.com/QuivrHQ/quivr/pull/3307
+* feat(assistant): cdp by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3305
+* feat: Add debug logging for OCR results by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3309
+* feat: Update OCR image scale for better accuracy by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3310
+* feat: Update PDFGenerator to include logo in header by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3311
+* feat: structlog parseable by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3312
+* Revert "feat: structlog parseable" by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3313
+* feat: structlog parseable by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3314
+* Revert "feat: structlog parseable" by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3315
+* feat: Update PDFGenerator to include logo in header by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3318
+* feat: structlog parseable by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3319
+* feat: Update knowledge status and send notification on task success by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3320
+* feat: Update text retranscription instructions by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3321
+* feat: update sentry by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3326
+* chore: Remove unnecessary assertion in create_modification_report function by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3329
+* chore: Add NEXT_PUBLIC_INTERCOM_APP_ID to Dockerfile by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3330
+* feat: Update Content Security Policy for PostHog by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3331
+* fix(cdp): order naming cdc_etiquette by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3333
+* fix(notifications): added a debouncing mechanism by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3327
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.319...v0.0.320
+
+## 0.0.319 (2024-10-01)
+
+## What's Changed
+* feat: Add error handling for rate-limited search in fetch_notion_pages by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3298
+* feat: Remove syncNotion from ConnectionCards by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3300
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.318...v0.0.319
+
+## 0.0.318 (2024-09-30)
+
+## What's Changed
+* feat: add syncNotion from ConnectionCards by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3292
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.317...v0.0.318
+
+## 0.0.317 (2024-09-30)
+
+## What's Changed
+* feat: update SyncsUser status field to be optional by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3284
+* fix(frontend): onboarding modal by @Zewed in https://github.com/QuivrHQ/quivr/pull/3286
+* feat: Remove syncNotion from ConnectionCards by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3289
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.316...v0.0.317
+
+## 0.0.316 (2024-09-30)
+
+## What's Changed
+* fix(core): enforce langchain <0.3 for pydantic v1 by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3217
+* chore(main): release core 0.0.16 by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3218
+* feat(assistants): mock api by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3195
+* chore(examples): fix chainlit example  by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3223
+* feat(integration): Notion by @chloedia in https://github.com/QuivrHQ/quivr/pull/3173
+* fix(migration): order migrations by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3231
+* feat: remove n+1 query knowledge by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3238
+* feat: introducing configurable retrieval workflows by @jacopo-chevallard in https://github.com/QuivrHQ/quivr/pull/3227
+* fix: wrong default path for CHAT_LLM_CONFIG_PATH env variable by @jacopo-chevallard in https://github.com/QuivrHQ/quivr/pull/3247
+* fix(frontend): sync folder for premium users by @Zewed in https://github.com/QuivrHQ/quivr/pull/3251
+* fix: correctly passing the prompt provided by the user by @jacopo-chevallard in https://github.com/QuivrHQ/quivr/pull/3252
+* fix: add sync user id aget_files by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3261
+* feat: update sync_user.py to include sync user id in aget_files call by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3276
+* chore: update Dockerfile dependencies and copy files by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3277
+* chore: add wget to Dockerfile dependencies by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3279
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.315...v0.0.316
+
+## 0.0.315 (2024-09-17)
+
+## What's Changed
+* chore(main): release core 0.0.15 by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3203
+* fix: knowledge user_id fix by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3216
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.314...v0.0.315
+
+## 0.0.314 (2024-09-16)
+
+## What's Changed
+* feat:  CRUD KMS (no syncs)  by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3162
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.313...v0.0.314
+
+## 0.0.313 (2024-09-13)
+
+## What's Changed
+* feat: save and load brain by @AmineDiro in https://github.com/QuivrHQ/quivr/pull/3202
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.312...v0.0.313
+
+## 0.0.312 (2024-09-13)
+
+## What's Changed
+* fix: Update LLMEndpoint to include max_tokens parameter by @StanGirard in https://github.com/QuivrHQ/quivr/pull/3201
+
+
+**Full Changelog**: https://github.com/QuivrHQ/quivr/compare/v0.0.311...v0.0.312
+
 ## 0.0.311 (2024-09-12)
 
 ## What's Changed

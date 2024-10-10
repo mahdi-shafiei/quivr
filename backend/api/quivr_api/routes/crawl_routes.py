@@ -81,13 +81,14 @@ async def crawl_endpoint(
         )
         knowledge_to_add = CreateKnowledgeProperties(
             brain_id=brain_id,
+            file_name=crawl_website.url,
             url=crawl_website.url,
             extension=".html",
             source="web",
             source_link=crawl_website.url,
         )
 
-        added_knowledge = await knowledge_service.insert_knowledge(
+        added_knowledge = await knowledge_service.insert_knowledge_brain(
             knowledge_to_add=knowledge_to_add, user_id=current_user.id
         )
         logger.info(f"Knowledge {added_knowledge} added successfully")

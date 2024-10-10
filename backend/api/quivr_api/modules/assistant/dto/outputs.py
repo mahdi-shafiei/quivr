@@ -3,6 +3,12 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class BrainInput(BaseModel):
+    required: Optional[bool] = True
+    description: str
+    type: str
+
+
 class InputFile(BaseModel):
     key: str
     allowed_extensions: Optional[List[str]] = ["pdf"]
@@ -55,6 +61,21 @@ class InputSelectNumber(BaseModel):
     default: Optional[int] = None
 
 
+class ConditionalInput(BaseModel):
+    """
+    Conditional input is a list of inputs that are conditional to the value of another input.
+    key: The key of the input that is conditional.
+    conditional_key: The key that determines if the input is shown.
+    """
+
+    key: str
+    conditional_key: str
+    condition: Optional[str] = (
+        None  # e.g. "equals", "contains", "starts_with", "ends_with", "regex", "in", "not_in", "is_empty", "is_not_empty"
+    )
+    value: Optional[str] = None
+
+
 class Inputs(BaseModel):
     files: Optional[List[InputFile]] = None
     urls: Optional[List[InputUrl]] = None
@@ -63,23 +84,8 @@ class Inputs(BaseModel):
     numbers: Optional[List[InputNumber]] = None
     select_texts: Optional[List[InputSelectText]] = None
     select_numbers: Optional[List[InputSelectNumber]] = None
-
-
-class OutputEmail(BaseModel):
-    required: Optional[bool] = True
-    description: str
-    type: str
-
-
-class OutputBrain(BaseModel):
-    required: Optional[bool] = True
-    description: str
-    type: str
-
-
-class Outputs(BaseModel):
-    email: Optional[OutputEmail] = None
-    brain: Optional[OutputBrain] = None
+    brain: Optional[BrainInput] = None
+    conditional_inputs: Optional[List[ConditionalInput]] = None
 
 
 class Pricing(BaseModel):
@@ -88,6 +94,7 @@ class Pricing(BaseModel):
 
 
 class AssistantOutput(BaseModel):
+    id: int
     name: str
     description: str
     pricing: Optional[Pricing] = Pricing()
@@ -95,5 +102,4 @@ class AssistantOutput(BaseModel):
     input_description: str
     output_description: str
     inputs: Inputs
-    outputs: Outputs
     icon_url: Optional[str] = None

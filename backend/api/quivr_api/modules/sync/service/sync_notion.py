@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timezone
 from typing import List, Sequence
 from uuid import UUID
@@ -20,7 +21,7 @@ class SyncNotionService(BaseService[NotionRepository]):
         self.repository = repository
 
     async def create_notion_files(
-        self, notion_raw_files: List[NotionPage], user_id: UUID
+        self, notion_raw_files: List[NotionPage], user_id: UUID, sync_user_id: int
     ) -> list[NotionSyncFile]:
         pages_to_add: List[NotionSyncFile] = []
         for page in notion_raw_files:
@@ -29,13 +30,17 @@ class SyncNotionService(BaseService[NotionRepository]):
                 and not page.archived
                 and page.parent.type in ("page_id", "workspace")
             ):
-                pages_to_add.append(page.to_syncfile(user_id))
+                pages_to_add.append(page.to_syncfile(user_id, sync_user_id))
         inserted_notion_files = await self.repository.create_notion_files(pages_to_add)
         logger.info(f"Insert response {inserted_notion_files}")
         return pages_to_add
 
     async def update_notion_files(
-        self, notion_pages: List[NotionPage], user_id: UUID, client: Client
+        self,
+        notion_pages: List[NotionPage],
+        user_id: UUID,
+        sync_user_id: int,
+        client: Client,
     ) -> bool:
         # 1. For each page we check if it is already in the db, if it is we modify it, if it isn't we create it.
         # 2. If the page was modified, we check all direct children of the page and check if they stil exist in notion, if they don't, we delete it
@@ -53,7 +58,7 @@ class SyncNotionService(BaseService[NotionRepository]):
                         page.id,
                     )
                     is_update = await self.repository.update_notion_file(
-                        page.to_syncfile(user_id)
+                        page.to_syncfile(user_id, sync_user_id)
                     )
 
                     if is_update:
@@ -61,7 +66,8 @@ class SyncNotionService(BaseService[NotionRepository]):
                             f"Updated notion file {page.id}, we need to check if children were deleted"
                         )
                         children = await self.get_notion_files_by_parent_id(
-                            str(page.id)
+                            str(page.id),
+                            sync_user_id,
                         )
                         for child in children:
                             try:
@@ -82,7 +88,7 @@ class SyncNotionService(BaseService[NotionRepository]):
                 else:
                     logger.info(f"Page {page.id} is in trash or archived, skipping ")
 
-            root_pages = await self.get_root_notion_files()
+            root_pages = await self.get_root_notion_files(sync_user_id=sync_user_id)
 
             for root_page in root_pages:
                 root_notion_page = client.pages.retrieve(root_page.notion_id)
@@ -103,25 +109,25 @@ class SyncNotionService(BaseService[NotionRepository]):
         return notion_files
 
     async def get_notion_files_by_parent_id(
-        self, parent_id: str | None
+        self, parent_id: str | None, sync_user_id: int
     ) -> Sequence[NotionSyncFile]:
         logger.info(f"Fetching notion files with parent_id: {parent_id}")
-        notion_files = await self.repository.get_notion_files_by_parent_id(parent_id)
+        notion_files = await self.repository.get_notion_files_by_parent_id(
+            parent_id, sync_user_id
+        )
         logger.info(
             f"Fetched {len(notion_files)} notion files with parent_id {parent_id}"
         )
         return notion_files
 
-    async def get_root_notion_files(self) -> Sequence[NotionSyncFile]:
+    async def get_root_notion_files(
+        self, sync_user_id: int
+    ) -> Sequence[NotionSyncFile]:
         logger.info("Fetching root notion files")
-        notion_files = await self.repository.get_notion_files_by_parent_id(None)
+        notion_files = await self.repository.get_notion_files_by_parent_id(
+            None, sync_user_id
+        )
         logger.info(f"Fetched {len(notion_files)} root notion files")
-        return notion_files
-
-    async def get_all_notion_files(self) -> Sequence[NotionSyncFile]:
-        logger.info("Fetching all notion files")
-        notion_files = await self.repository.get_all_notion_files()
-        logger.info(f"Fetched {len(notion_files)} notion files")
         return notion_files
 
     async def is_folder_page(self, page_id: str) -> bool:
@@ -137,28 +143,43 @@ async def update_notion_pages(
     notion_service: SyncNotionService,
     pages_to_update: list[NotionPage],
     user_id: UUID,
+    sync_user_id: int,
     client: Client,
 ):
-    return await notion_service.update_notion_files(pages_to_update, user_id, client)
+    return await notion_service.update_notion_files(
+        pages_to_update, user_id, sync_user_id, client
+    )
 
 
 async def store_notion_pages(
     all_search_result: list[NotionPage],
     notion_service: SyncNotionService,
     user_id: UUID,
+    sync_user_id: int,
 ):
-    return await notion_service.create_notion_files(all_search_result, user_id)
+    return await notion_service.create_notion_files(
+        all_search_result, user_id, sync_user_id
+    )
 
 
 def fetch_notion_pages(
-    notion_client: Client, start_cursor: str | None = None
+    notion_client: Client, start_cursor: str | None = None, iteration: int = 0
 ) -> NotionSearchResult:
+    if iteration > 10:
+        return NotionSearchResult(results=[], has_more=False, next_cursor=None)
     search_result = notion_client.search(
         query="",
         filter={"property": "object", "value": "page"},
         sort={"direction": "descending", "timestamp": "last_edited_time"},
         start_cursor=start_cursor,
     )
+    if "code" in search_result and search_result["code"] == "rate_limited":
+        # Wait 10 seconds
+        time.sleep(10)
+        search_result = fetch_notion_pages(
+            notion_client, start_cursor=start_cursor, iteration=iteration + 1
+        )
+
     return NotionSearchResult.model_validate(search_result)
 
 
